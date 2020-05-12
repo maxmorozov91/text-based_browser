@@ -118,5 +118,5 @@ while True:
             show_new_page(user_input)
             download_page(user_input)
 
-def test_function_3():
-    print("Hello Morozov!")
+def test_function_4():
+    print("Hello Max Morozov!")
