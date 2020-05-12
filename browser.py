@@ -117,6 +117,3 @@ while True:
         if is_url_correct(user_input):
             show_new_page(user_input)
             download_page(user_input)
-
-def test_function():
-    print("Hello World! Hi Max!")
