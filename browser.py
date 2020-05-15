@@ -41,7 +41,9 @@ Twitter and Square Chief Executive Officer Jack Dorsey
 
 def is_url_correct(url: str) -> bool:
 
-    if "." not in url:
+    global pages
+  
+    if url not in pages:
         print("error: url is not correct")
         return False
 
