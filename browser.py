@@ -1,5 +1,10 @@
 from sys import argv
+from collections import deque
 import os
+
+BLOOMBERG = "bloomberg.com"
+NYTIMES = "nytimes.com"
+DIRECTORY = argv[1]
 
 nytimes_com = '''
 This New Liquid Is Magnetic, and Mesmerizing
@@ -39,83 +44,92 @@ Twitter and Square Chief Executive Officer Jack Dorsey
 # write your code here
 
 
-def is_url_correct(url: str) -> bool:
-
-    global pages
-  
-    if url not in pages:
-        print("error: url is not correct")
-        return False
-
-    return True
-
-
 def transform_url(url: str) -> str:
 
-    for i in range(len(url)):
+    for i in range(1, len(url)):
         if url[-i] == ".":
             short_url = url[:len(url) - i]
             return short_url
 
 
-def download_page(url: str):
-    
-    global pages
-    global downloaded_pages
-    global directory
+def download_page(_downloaded_pages: set, directory: str, __pages: dict, url: str) -> set:
 
     page_name = transform_url(url)
 
     file_name = directory + "/" + page_name + ".txt"
 
     with open(file_name, "w") as file:
-        file.write(pages[url])
+        file.write(__pages[url])
 
-    downloaded_pages.add(page_name)
+    _downloaded_pages.add(page_name)
 
-
-def show_new_page(url: str):
-    
-    global pages
-
-    print(pages[url])
+    return _downloaded_pages
 
 
-def show_downloaded_page(page_name: str):
-
-    global directory
+def get_downloaded_page(directory: str, page_name: str) -> deque:
 
     file_name = directory + "/" + page_name + ".txt"
 
     with open(file_name, "r") as file:
         content = file.read()
+
+    return content
+
+
+def make_directory(_path: str):
+    
+    if not os.path.exists(_path):
+        os.mkdir(_path)
+
+
+def go_back(_viewed_pages: deque) -> deque:
+
+    if len(_viewed_pages):
+        print(_viewed_pages.pop())
+
+    return _viewed_pages    
+
+
+def run_browser(_pages: dict, path: str):
+
+    content = ""
+    downloaded_pages = set()
+    viewed_pages = deque()
+    EXIT = "exit"
+    BACK = "back"
+
+    make_directory(path)
+
+    while True:
+
+        user_input = input()
+        
+        if user_input == EXIT:
+            break
+
+        elif user_input == BACK:
+            viewed_pages = go_back(viewed_pages)
+            continue
+        
+        elif user_input in downloaded_pages:
+            viewed_pages.append(content)
+            content = get_downloaded_page(path, user_input)
+
+        elif user_input in _pages:
+            viewed_pages.append(content)
+            content = _pages[user_input]
+            downloaded_pages = download_page(downloaded_pages, path, _pages, user_input)
+
+        else:
+            print("error: url is not correct")
+            continue
+
         print(content)
 
 
 pages = {
-    "bloomberg.com": bloomberg_com,
-    "nytimes.com": nytimes_com
+    BLOOMBERG: bloomberg_com,
+    NYTIMES: nytimes_com
 }
-
-downloaded_pages = set()
-
-directory = argv[1]
-
-if not os.path.exists(directory):
-    os.mkdir(directory)
-
-
-while True:
-
-    user_input = input()
-
-    if user_input == "exit":
-        break
-    
-    if user_input in downloaded_pages:
-        show_downloaded_page(user_input)
-    
-    else:
-        if is_url_correct(user_input):
-            show_new_page(user_input)
-            download_page(user_input)
+ 
+run_browser(pages, DIRECTORY)
