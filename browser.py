@@ -5,6 +5,8 @@ import os
 BLOOMBERG = "bloomberg.com"
 NYTIMES = "nytimes.com"
 DIRECTORY = argv[1]
+EXIT = "exit"
+BACK = "back"
 
 nytimes_com = '''
 This New Liquid Is Magnetic, and Mesmerizing
@@ -66,7 +68,7 @@ def download_page(_downloaded_pages: set, directory: str, __pages: dict, url: st
     return _downloaded_pages
 
 
-def get_downloaded_page(directory: str, page_name: str) -> deque:
+def get_downloaded_page(directory: str, page_name: str) -> str:
 
     file_name = directory + "/" + page_name + ".txt"
 
@@ -92,11 +94,12 @@ def go_back(_viewed_pages: deque) -> deque:
 
 def run_browser(_pages: dict, path: str):
 
+    global EXIT
+    global BACK
+    
     content = ""
     downloaded_pages = set()
     viewed_pages = deque()
-    EXIT = "exit"
-    BACK = "back"
 
     make_directory(path)
 
