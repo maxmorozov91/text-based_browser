@@ -1,6 +1,7 @@
+import os
+import requests
 from sys import argv
 from collections import deque
-import os
 
 BLOOMBERG = "bloomberg.com"
 NYTIMES = "nytimes.com"
