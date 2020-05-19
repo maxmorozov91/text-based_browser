@@ -1,7 +1,9 @@
 import os
 import requests
+import colorama
 from collections import deque
 from sys import argv
+from bs4 import BeautifulSoup
 
 DIRECTORY = argv[1]
 EXIT = "exit"
@@ -70,7 +72,19 @@ def go_back(_viewed_pages: deque) -> deque:
     return _viewed_pages    
 
 
-def get_content(url: str):
+def show_parsed_content(html_doc: str):
+
+    soup = BeautifulSoup(html_doc, "html.parser")
+
+    for tag in soup.descendants:
+        if tag.name in ("p", "a", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li") and tag.string:
+            if tag.name == "a":
+                print(colorama.Fore.BLUE + tag.string)
+            else:
+                print(tag.string)
+
+
+def get_content(url: str) -> str:
 
     r = requests.get(transform_url_long(url))
 
@@ -87,6 +101,7 @@ def main(path: str):
     viewed_pages = deque()
 
     make_directory(path)
+    colorama.init(autoreset=True)
 
     while True:
 
@@ -111,7 +126,7 @@ def main(path: str):
         else:
             print("error: url is not correct")
             
-        print(content)
+        show_parsed_content(content)
 
  
 if __name__ == "__main__":
