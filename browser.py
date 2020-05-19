@@ -8,6 +8,14 @@ EXIT = "exit"
 BACK = "back"
 
 
+def is_url_correct(url) -> bool:
+
+    if "." in url:
+        return True
+
+    return False
+
+
 def transform_url_short(url: str) -> str:
 
     for i in range(1, len(url)):
@@ -95,11 +103,14 @@ def main(path: str):
             viewed_pages.append(content)
             content = get_downloaded_page(path, user_input)
 
-        else:
+        elif is_url_correct(user_input):
             viewed_pages.append(content)
             content = get_content(user_input)
             downloaded_pages = download_page(downloaded_pages, path, content, user_input)
 
+        else:
+            print("error: url is not correct")
+            
         print(content)
 
  
