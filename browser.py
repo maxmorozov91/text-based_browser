@@ -1,52 +1,14 @@
-from sys import argv
-from collections import deque
 import os
+import requests
+from collections import deque
+from sys import argv
 
-BLOOMBERG = "bloomberg.com"
-NYTIMES = "nytimes.com"
 DIRECTORY = argv[1]
 EXIT = "exit"
 BACK = "back"
 
-nytimes_com = '''
-This New Liquid Is Magnetic, and Mesmerizing
 
-Scientists have created 'soft' magnets that can flow 
-and change shape, and that could be a boon to medicine 
-and robotics. (Source: New York Times)
-
-
-Most Wikipedia Profiles Are of Men. This Scientist Is Changing That.
-
-Jessica Wade has added nearly 700 Wikipedia biographies for
- important female and minority scientists in less than two 
- years.
-
-'''
-
-bloomberg_com = '''
-The Space Race: From Apollo 11 to Elon Musk
-
-It's 50 years since the world was gripped by historic images
- of Apollo 11, and Neil Armstrong -- the first man to walk 
- on the moon. It was the height of the Cold War, and the charts
- were filled with David Bowie's Space Oddity, and Creedence's 
- Bad Moon Rising. The world is a very different place than 
- it was 5 decades ago. But how has the space race changed since
- the summer of '69? (Source: Bloomberg)
-
-
-Twitter CEO Jack Dorsey Gives Talk at Apple Headquarters
-
-Twitter and Square Chief Executive Officer Jack Dorsey 
- addressed Apple Inc. employees at the iPhone maker's headquarters
- Tuesday, a signal of the strong ties between the Silicon Valley giants.
-'''
-
-# write your code here
-
-
-def transform_url(url: str) -> str:
+def transform_url_short(url: str) -> str:
 
     for i in range(1, len(url)):
         if url[-i] == ".":
@@ -54,14 +16,22 @@ def transform_url(url: str) -> str:
             return short_url
 
 
-def download_page(_downloaded_pages: set, directory: str, __pages: dict, url: str) -> set:
+def transform_url_long(url: str) -> str:
 
-    page_name = transform_url(url)
+    if not url.startswith("https://"):
+        url = "https://" + url
+
+    return url
+
+
+def download_page(_downloaded_pages: set, directory: str, _content: str, url: str) -> set:
+
+    page_name = transform_url_short(url)
 
     file_name = directory + "/" + page_name + ".txt"
 
     with open(file_name, "w") as file:
-        file.write(__pages[url])
+        file.write(_content)
 
     _downloaded_pages.add(page_name)
 
@@ -92,7 +62,14 @@ def go_back(_viewed_pages: deque) -> deque:
     return _viewed_pages    
 
 
-def run_browser(_pages: dict, path: str):
+def get_content(url: str):
+
+    r = requests.get(transform_url_long(url))
+
+    return r.text
+
+
+def main(path: str):
 
     global EXIT
     global BACK
@@ -118,21 +95,13 @@ def run_browser(_pages: dict, path: str):
             viewed_pages.append(content)
             content = get_downloaded_page(path, user_input)
 
-        elif user_input in _pages:
-            viewed_pages.append(content)
-            content = _pages[user_input]
-            downloaded_pages = download_page(downloaded_pages, path, _pages, user_input)
-
         else:
-            print("error: url is not correct")
-            continue
+            viewed_pages.append(content)
+            content = get_content(user_input)
+            downloaded_pages = download_page(downloaded_pages, path, content, user_input)
 
         print(content)
 
-
-pages = {
-    BLOOMBERG: bloomberg_com,
-    NYTIMES: nytimes_com
-}
  
-run_browser(pages, DIRECTORY)
+if __name__ == "__main__":
+    main(DIRECTORY)
